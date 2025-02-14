@@ -1,5 +1,7 @@
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
+import random
+import time
 
 class Website:
     def __init__(self, url):
@@ -10,23 +12,34 @@ class Website:
         self.scrape()
 
     def scrape(self):
+        user_agents = [
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
+        ]
         headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
+            "User-Agent": random.choice(user_agents),
+            "Accept-Language": "en-US,en;q=0.9",
+            "Referer": "https://www.google.com/"
         }
 
         with sync_playwright() as p:
             try:
                 browser = p.chromium.launch(
                     headless=True,
-                    args=["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"]
+                    args=["--no-sandbox", "--disable-blink-features=AutomationControlled", "--disable-dev-shm-usage"]
                 )
                 context = browser.new_context(ignore_https_errors=True, extra_http_headers=headers)
                 page = context.new_page()
 
-                page.goto(self.url, timeout=15000)  
-                page.wait_for_load_state("networkidle")  
+                time.sleep(random.uniform(1, 3))
 
-                html = page.content()  
+                page.goto(self.url, timeout=20000)  
+                page.wait_for_load_state("networkidle")
+
+                time.sleep(random.uniform(2, 5))
+
+                html = page.content()
                 browser.close()
 
             except Exception as e:
