@@ -1,5 +1,4 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
+from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 
 class Website:
@@ -11,45 +10,38 @@ class Website:
         self.scrape()
 
     def scrape(self):
-        options = Options()
-        options.add_argument("--headless")
-        options.add_argument("--disable-gpu")
-        options.add_argument("--window-size=1920,1080")
-        options.add_argument("--no-sandbox")
-        driver = webdriver.Chrome(options=options)
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
+        }
 
-        try:
-            driver.get(self.url)
-            driver.implicitly_wait(10)
+        with sync_playwright() as p:
+            browser = browser = p.firefox.launch(headless=True)
+            context = browser.new_context(ignore_https_errors=True, extra_http_headers=headers)
 
-            html = driver.page_source
-        except Exception as e:
-            driver.quit()
-            raise Exception(f"Error loading the webpage: {e}")
-        finally:
-            driver.quit()
+            page = context.new_page()
+
+            try:
+                page.goto(self.url, timeout=15000)  
+                page.wait_for_load_state("domcontentloaded")  
+
+                html = page.content()  
+            except Exception as e:
+                browser.close()
+                raise Exception(f"Error fetching the webpage {self.url}: {e}")
+
+            browser.close()
 
         soup = BeautifulSoup(html, 'html.parser')
         self.title = soup.title.string if soup.title else "No title found"
 
         if soup.body:
-
             for tag in soup.body(["script", "style", "img", "input"]):
                 tag.decompose()
             self.text = soup.body.get_text(separator="\n", strip=True)
         else:
             self.text = ""
 
-
         self.links = [link.get('href') for link in soup.find_all('a') if link.get('href')]
 
     def get_contents(self):
         return f"Webpage Title:\n{self.title}\nWebpage Contents:\n{self.text}\n\n"
-
-if __name__ == "__main__":
-    url = "https://www.example.com"  # set any URL
-    website = Website(url)
-    print(website.get_contents())
-    print("Extracted links:")
-    for link in website.links:
-        print(link)
