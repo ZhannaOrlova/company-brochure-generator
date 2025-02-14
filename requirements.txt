@@ -67,6 +67,7 @@ setuptools
 playwright
 playwright-stealth
 beautifulsoup4
+requests-html
 
 
 
