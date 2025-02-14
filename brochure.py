@@ -1,7 +1,5 @@
 import openai
 
-import openai
-
 class BrochureCreation:
     def __init__(self, model, api_key):
         self.model = model
