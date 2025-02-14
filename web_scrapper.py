@@ -1,6 +1,9 @@
-import cloudscraper
+import time
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
-import os
 
 class Website:
     def __init__(self, url):
@@ -11,33 +14,25 @@ class Website:
         self.scrape()
 
     def scrape(self):
-        scraper = cloudscraper.create_scraper(browser={"browser": "chrome", "platform": "windows", "mobile": False})
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
-        }
+        options = Options()
+        options.add_argument("--headless")  # No GUI mode
+        options.add_argument("--disable-blink-features=AutomationControlled")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+
+        service = ChromeService(ChromeDriverManager().install())
+        driver = webdriver.Chrome(service=service, options=options)
 
         try:
-            response = scraper.get(self.url, headers=headers, timeout=10)
-            response.raise_for_status()
-            html = response.text
+            driver.get(self.url)
+            time.sleep(5)  # Allow JavaScript to load
+            html = driver.page_source
         except Exception as e:
-            print(f"⚠️ Could not fetch {self.url} directly. Trying ScrapingBee API...")
-            html = self.scrape_with_scrapingbee()
-        
+            driver.quit()
+            raise Exception(f"⚠️ Error fetching webpage {self.url}: {e}")
+
+        driver.quit()
         self.parse_html(html)
-
-    def scrape_with_scrapingbee(self):
-        api_key = os.getenv("SCRAPINGBEE_API_KEY")
-        if not api_key:
-            raise Exception("⚠️ Missing ScrapingBee API key in environment variables.")
-
-        url = f"https://app.scrapingbee.com/api/v1/?api_key={api_key}&url={self.url}&render_js=True"
-        response = cloudscraper.get(url)
-
-        if response.status_code == 200:
-            return response.text
-        else:
-            raise Exception(f"⚠️ ScrapingBee API failed: {response.status_code}")
 
     def parse_html(self, html):
         soup = BeautifulSoup(html, 'html.parser')
