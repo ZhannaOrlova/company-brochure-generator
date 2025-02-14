@@ -1,8 +1,4 @@
-import time
-from selenium import webdriver
-from selenium.webdriver.firefox.service import Service as FirefoxService
-from selenium.webdriver.firefox.options import Options
-from webdriver_manager.firefox import GeckoDriverManager
+import httpx
 from bs4 import BeautifulSoup
 
 class Website:
@@ -14,25 +10,17 @@ class Website:
         self.scrape()
 
     def scrape(self):
-        options = Options()
-        options.add_argument("--headless")  
-        options.add_argument("--disable-blink-features=AutomationControlled")
-
-        service = FirefoxService(GeckoDriverManager().install())
-        driver = webdriver.Firefox(service=service, options=options)
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
+        }
 
         try:
-            driver.get(self.url)
-            time.sleep(5)  
-            html = driver.page_source
+            response = httpx.get(self.url, headers=headers, timeout=10)
+            response.raise_for_status()  # Ensure the request was successful
+            html = response.text
         except Exception as e:
-            driver.quit()
-            raise Exception(f"Error fetching the webpage {self.url}: {e}")
+            raise Exception(f"⚠️ Could not fetch webpage {self.url}. It may be a highly dynamic site or blocked: {e}")
 
-        driver.quit()
-        self.parse_html(html)
-
-    def parse_html(self, html):
         soup = BeautifulSoup(html, 'html.parser')
         self.title = soup.title.string if soup.title else "No title found"
 

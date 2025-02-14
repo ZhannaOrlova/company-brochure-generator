@@ -70,6 +70,7 @@ beautifulsoup4
 requests-html
 selenium
 webdriver-manager
+httpx
 
 
 
