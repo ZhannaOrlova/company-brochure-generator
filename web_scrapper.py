@@ -15,22 +15,23 @@ class Website:
         }
 
         with sync_playwright() as p:
-            browser = p.chromium.launch(
-                headless=True,
-                args=["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"]
-            )
-            context = browser.new_context(ignore_https_errors=True, extra_http_headers=headers)
-            page = context.new_page()
-
             try:
-                page.goto(self.url, timeout=15000) 
-                page.wait_for_load_state("networkidle")  
-                html = page.content() 
-            except Exception as e:
-                browser.close()
-                raise Exception(f"Error fetching the webpage {self.url}: {e}")
+                browser = p.chromium.launch(
+                    headless=True,
+                    args=["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"]
+                )
+                context = browser.new_context(ignore_https_errors=True, extra_http_headers=headers)
+                page = context.new_page()
 
-            browser.close()
+                page.goto(self.url, timeout=15000)  
+                page.wait_for_load_state("networkidle")  
+
+                html = page.content()  
+                browser.close()
+
+            except Exception as e:
+                print(f"⚠️ Playwright Error: {e}")  
+                raise Exception(f"Error fetching the webpage {self.url}: {e}")
 
         soup = BeautifulSoup(html, 'html.parser')
         self.title = soup.title.string if soup.title else "No title found"
