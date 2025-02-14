@@ -5,6 +5,11 @@ from link_selection import LinkSelection
 from brochure import BrochureCreation
 from dotenv import load_dotenv
 import os
+import streamlit as st
+
+if not os.path.exists("/root/.cache/ms-playwright"):
+    st.write("Installing Playwright browsers... Please wait.")
+    os.system("playwright install chromium")
 
 load_dotenv()
 
