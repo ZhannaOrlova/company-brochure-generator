@@ -71,6 +71,7 @@ requests-html
 selenium
 webdriver-manager
 httpx
+cloudscraper
 
 
 
