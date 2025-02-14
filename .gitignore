@@ -1,0 +1,23 @@
+# Ignore the virtual environment
+venv/
+.env
+*.env
+
+# Ignore macOS system files
+.DS_Store
+
+# Ignore Python bytecode files
+__pycache__/
+*.py[cod]
+
+# Ignore logs and database files
+*.log
+*.sqlite3
+
+# Ignore Jupyter Notebook checkpoints (if using Jupyter)
+.ipynb_checkpoints/
+
+# Ignore temporary files
+*.swp
+*.swo
+*.bak
