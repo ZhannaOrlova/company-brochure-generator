@@ -1,6 +1,5 @@
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
-from playwright_stealth import stealth  
 
 class Website:
     def __init__(self, url):
@@ -16,17 +15,17 @@ class Website:
         }
 
         with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True, args=["--disable-blink-features=AutomationControlled"])
+            browser = p.chromium.launch(
+                headless=True,
+                args=["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"]
+            )
             context = browser.new_context(ignore_https_errors=True, extra_http_headers=headers)
             page = context.new_page()
 
-            stealth(page)
-
             try:
-                page.goto(self.url, timeout=15000)  
+                page.goto(self.url, timeout=15000) 
                 page.wait_for_load_state("networkidle")  
-
-                html = page.content()  
+                html = page.content() 
             except Exception as e:
                 browser.close()
                 raise Exception(f"Error fetching the webpage {self.url}: {e}")
