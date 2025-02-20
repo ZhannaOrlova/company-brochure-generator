@@ -22,7 +22,7 @@ class Website:
 
         print("🔹 Downloading ChromeDriver...")
         chrome_driver_path = ChromeDriverManager().install()
-        print(f"✅ ChromeDriver installed at: {chrome_driver_path}")
+        print(f"ChromeDriver installed at: {chrome_driver_path}")
 
         service = ChromeService(chrome_driver_path)
 
@@ -36,7 +36,7 @@ class Website:
             driver.quit()
         except Exception as e:
             driver.quit()
-            raise Exception(f"⚠️ Error fetching webpage {self.url}: {e}")
+            raise Exception(f"Error fetching webpage {self.url}: {e}")
 
         self.parse_html(html)
 

@@ -19,7 +19,7 @@ class BrochureCreation:
             max_tokens=1200  
         )
 
-        brochure_content = response.choices[0].message.content.strip()  # Correct way to access the response
+        brochure_content = response.choices[0].message.content.strip() 
         return brochure_content
 
     def create_brochure_prompt(self, company_name, relevant_links):
