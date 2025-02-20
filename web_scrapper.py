@@ -15,23 +15,29 @@ class Website:
 
     def scrape(self):
         options = Options()
-        options.add_argument("--headless")  # No GUI mode
-        options.add_argument("--disable-blink-features=AutomationControlled")
+        options.add_argument("--headless")  
         options.add_argument("--no-sandbox")
+        options.add_argument("--disable-gpu")
         options.add_argument("--disable-dev-shm-usage")
 
-        service = ChromeService(ChromeDriverManager().install())
+        print("🔹 Downloading ChromeDriver...")
+        chrome_driver_path = ChromeDriverManager().install()
+        print(f"✅ ChromeDriver installed at: {chrome_driver_path}")
+
+        service = ChromeService(chrome_driver_path)
+
         driver = webdriver.Chrome(service=service, options=options)
 
         try:
+            print(f"🌍 Fetching: {self.url}")
             driver.get(self.url)
-            time.sleep(5)  # Allow JavaScript to load
+            time.sleep(2)  
             html = driver.page_source
+            driver.quit()
         except Exception as e:
             driver.quit()
             raise Exception(f"⚠️ Error fetching webpage {self.url}: {e}")
 
-        driver.quit()
         self.parse_html(html)
 
     def parse_html(self, html):

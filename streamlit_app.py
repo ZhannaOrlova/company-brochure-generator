@@ -7,10 +7,6 @@ from dotenv import load_dotenv
 import os
 import streamlit as st
 
-if not os.path.exists("/root/.cache/ms-playwright"):
-    st.write("Installing Playwright browsers... Please wait.")
-    os.system("playwright install chromium")
-
 load_dotenv()
 
 google_search_api = os.getenv("GOOGLE_SEARCH_API")

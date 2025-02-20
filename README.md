@@ -56,5 +56,8 @@ The AI selects relevant links.
 OpenAI generates a structured company brochure.
 The final brochure is displayed in the Streamlit interface.
 
-
+## 👀 UI 
+![Alt text](one.png)
+![Alt text](two.png)
+![Alt text](three.png)
 
